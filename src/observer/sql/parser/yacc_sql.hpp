@@ -98,11 +98,11 @@ extern int yydebug;
     GE = 299,                      /* GE  */
     NE = 300,                      /* NE  */
     DATE_T = 301,                  /* DATE_T  */
-    DATE_STR = 302,                /* DATE_STR  */
-    NUMBER = 303,                  /* NUMBER  */
-    FLOAT = 304,                   /* FLOAT  */
-    ID = 305,                      /* ID  */
-    SSS = 306,                     /* SSS  */
+    NUMBER = 302,                  /* NUMBER  */
+    FLOAT = 303,                   /* FLOAT  */
+    ID = 304,                      /* ID  */
+    SSS = 305,                     /* SSS  */
+    DATE_STR = 306,                /* DATE_STR  */
     UMINUS = 307                   /* UMINUS  */
   };
   typedef enum yytokentype yytoken_kind_t;

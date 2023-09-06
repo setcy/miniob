@@ -132,10 +132,9 @@ DATE                                    RETURN_TOKEN(DATE_T);
 "-" |
 "*" |
 "/"                                     { return yytext[0]; }
+{QUOTE}[0-9]{4}\-[0-9]{2}\-[0-9]{2}{QUOTE} yylval->string=strdup(yytext); RETURN_TOKEN(DATE_STR);
 \"[^"]*\"                               yylval->string = strdup(yytext); RETURN_TOKEN(SSS);
 '[^']*\'                                yylval->string = strdup(yytext); RETURN_TOKEN(SSS);
-
-{QUOTE}[0-9]{4}\-[0-9]{2}\-[0-9]{2}{QUOTE} yylval->string=strdup(yytext); RETURN_TOKEN(DATE_STR);
 
 .                                       LOG_DEBUG("Unknown character [%c]",yytext[0]); return yytext[0];
 %%

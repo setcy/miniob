@@ -400,7 +400,7 @@ static const flex_int16_t yy_accept[191] =
        58,   41,   42,   53,   51,   43,   52,    6,   54,    3,
         5,   48,   44,   50,   40,   40,   40,   40,   40,   40,
        40,   40,   40,   40,   40,   40,   40,   40,   40,   40,
-       40,   59,   47,    0,   55,    0,    0,   56,    0,    3,
+       40,   59,   47,    0,   56,    0,    0,   57,    0,    3,
         0,   45,   46,   49,   40,   40,   40,   40,   40,   40,
        40,   40,   40,   40,   40,   40,   40,   40,   40,   40,
        40,   15,   40,   40,   40,   40,   40,   40,   40,   40,
@@ -415,7 +415,7 @@ static const flex_int16_t yy_accept[191] =
        14,   40,   40,   40,   40,   12,   40,   40,   21,    0,
         0,   30,   10,   26,   40,   37,   23,   40,   18,   13,
        27,   25,    0,    0,   38,   40,    0,    0,   31,    0,
-        0,    0,    0,    0,    0,   55,   57,   57,   56,    0
+        0,    0,    0,    0,    0,   55,   55,   55,   55,    0
     } ;
 
 static const YY_CHAR yy_ec[256] =
@@ -1288,10 +1288,9 @@ YY_RULE_SETUP
 { return yytext[0]; }
 	YY_BREAK
 case 55:
-/* rule 55 can match eol */
 YY_RULE_SETUP
 #line 135 "lex_sql.l"
-yylval->string = strdup(yytext); RETURN_TOKEN(SSS);
+yylval->string=strdup(yytext); RETURN_TOKEN(DATE_STR);
 	YY_BREAK
 case 56:
 /* rule 56 can match eol */
@@ -1300,18 +1299,19 @@ YY_RULE_SETUP
 yylval->string = strdup(yytext); RETURN_TOKEN(SSS);
 	YY_BREAK
 case 57:
+/* rule 57 can match eol */
 YY_RULE_SETUP
-#line 138 "lex_sql.l"
-yylval->string=strdup(yytext); RETURN_TOKEN(DATE_STR);
+#line 137 "lex_sql.l"
+yylval->string = strdup(yytext); RETURN_TOKEN(SSS);
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 140 "lex_sql.l"
+#line 139 "lex_sql.l"
 LOG_DEBUG("Unknown character [%c]",yytext[0]); return yytext[0];
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 141 "lex_sql.l"
+#line 140 "lex_sql.l"
 ECHO;
 	YY_BREAK
 #line 1318 "lex_sql.cpp"
@@ -2470,7 +2470,7 @@ void yyfree (void * ptr , yyscan_t yyscanner)
 
 #define YYTABLES_NAME "yytables"
 
-#line 141 "lex_sql.l"
+#line 140 "lex_sql.l"
 
 
 void scan_string(const char *str, yyscan_t scanner) {

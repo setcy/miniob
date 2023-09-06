@@ -1,6 +1,7 @@
 
 %{
 
+#include <ctime>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -98,7 +99,6 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
         GE
         NE
         DATE_T
-        DATE_STR
 
 /** union 中定义各种数据类型，真实生成的代码也是union类型，所以不能有非POD类型的数据 **/
 %union {
@@ -124,6 +124,7 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
 %token <floats> FLOAT
 %token <string> ID
 %token <string> SSS
+%token <string> DATE_STR
 //非终结符
 
 /** type 定义了各种解析后的结果输出的是什么类型。类型对应了 union 中的定义的成员变量名称 **/
@@ -382,6 +383,21 @@ value:
     |FLOAT {
       $$ = new Value((float)$1);
       @$ = @1;
+    }
+    |DATE_STR {
+      char *tmp = common::substr($1,1,strlen($1)-2);
+
+      struct tm timeinfo;
+      memset(&timeinfo, 0, sizeof(struct tm));
+      
+      // 使用 strptime 解析时间字符串
+      strptime(tmp, "%Y-%m-%d %H:%M:%S", &timeinfo);
+
+      // 使用 mktime 将 struct tm 转换为 time_t（时间戳）
+      time_t timestamp = mktime(&timeinfo);
+
+      $$ = new Value(timestamp);
+      free(tmp);
     }
     |SSS {
       char *tmp = common::substr($1,1,strlen($1)-2);
