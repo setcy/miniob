@@ -12,6 +12,7 @@ See the Mulan PSL v2 for more details. */
 // Created by WangYunlai on 2023/06/28.
 //
 
+#include <ctime>
 #include <sstream>
 #include "sql/parser/value.h"
 #include "storage/field/field.h"
@@ -19,11 +20,18 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/comparator.h"
 #include "common/lang/string.h"
 
-const char *ATTR_TYPE_NAME[] = {"undefined", "chars", "ints", "floats", "booleans"};
+const char *ATTR_TYPE_NAME[] = {
+    "undefined",
+    "chars",
+    "ints",
+    "floats",
+    "dates",
+    "booleans",
+};
 
 const char *attr_type_to_string(AttrType type)
 {
-  if (type >= UNDEFINED && type <= FLOATS) {
+  if (type >= UNDEFINED && type <= DATES) {
     return ATTR_TYPE_NAME[type];
   }
   return "unknown";
@@ -72,6 +80,10 @@ void Value::set_data(char *data, int length)
       num_value_.float_value_ = *(float *)data;
       length_ = length;
     } break;
+    case DATES: {
+      num_value_.date_value_ = *(time_t *)data;
+      length_               = length;
+    } break;
     case BOOLEANS: {
       num_value_.bool_value_ = *(int *)data != 0;
       length_ = length;
@@ -93,6 +105,13 @@ void Value::set_float(float val)
   attr_type_ = FLOATS;
   num_value_.float_value_ = val;
   length_ = sizeof(val);
+}
+
+void Value::set_date(time_t val)
+{
+  attr_type_            = DATES;
+  num_value_.date_value_ = val;
+  length_               = sizeof(val);
 }
 void Value::set_boolean(bool val)
 {
@@ -123,6 +142,9 @@ void Value::set_value(const Value &value)
     } break;
     case CHARS: {
       set_string(value.get_string().c_str());
+    } break;
+    case DATES: {
+      set_date(value.get_date());
     } break;
     case BOOLEANS: {
       set_boolean(value.get_boolean());
@@ -155,6 +177,13 @@ std::string Value::to_string() const
     case FLOATS: {
       os << common::double_to_str(num_value_.float_value_);
     } break;
+    case DATES: {
+      struct tm *timeinfo;
+      char       buffer[80];
+      timeinfo = localtime(&num_value_.date_value_);
+      strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", timeinfo);
+      os << std::string(buffer);
+    } break;
     case BOOLEANS: {
       os << num_value_.bool_value_;
     } break;
@@ -183,6 +212,9 @@ int Value::compare(const Value &other) const
             this->str_value_.length(),
             (void *)other.str_value_.c_str(),
             other.str_value_.length());
+      } break;
+      case DATES: {
+        return common::compare_int((void *)&this->num_value_.date_value_, (void *)&other.num_value_.date_value_);
       } break;
       case BOOLEANS: {
         return common::compare_int((void *)&this->num_value_.bool_value_, (void *)&other.num_value_.bool_value_);
@@ -219,6 +251,9 @@ int Value::get_int() const
     case FLOATS: {
       return (int)(num_value_.float_value_);
     }
+    case DATES: {
+      return (int)(num_value_.date_value_);
+    }
     case BOOLEANS: {
       return (int)(num_value_.bool_value_);
     }
@@ -247,9 +282,43 @@ float Value::get_float() const
     case FLOATS: {
       return num_value_.float_value_;
     } break;
+    case DATES: {
+      return float(num_value_.date_value_);
+    } break;
     case BOOLEANS: {
       return float(num_value_.bool_value_);
     } break;
+    default: {
+      LOG_WARN("unknown data type. type=%d", attr_type_);
+      return 0;
+    }
+  }
+  return 0;
+}
+
+time_t Value::get_date() const
+{
+  switch (attr_type_) {
+    case CHARS: {
+      try {
+        return (int)(std::stol(str_value_));
+      } catch (std::exception const &ex) {
+        LOG_TRACE("failed to convert string to number. s=%s, ex=%s", str_value_.c_str(), ex.what());
+        return 0;
+      }
+    }
+    case INTS: {
+      return (time_t)(num_value_.int_value_);
+    }
+    case FLOATS: {
+      return (time_t)(num_value_.float_value_);
+    }
+    case DATES: {
+      return num_value_.date_value_;
+    }
+    case BOOLEANS: {
+      return (time_t)(num_value_.bool_value_);
+    }
     default: {
       LOG_WARN("unknown data type. type=%d", attr_type_);
       return 0;
@@ -290,6 +359,9 @@ bool Value::get_boolean() const
     case FLOATS: {
       float val = num_value_.float_value_;
       return val >= EPSILON || val <= -EPSILON;
+    } break;
+    case DATES: {
+      return num_value_.date_value_ != 0;
     } break;
     case BOOLEANS: {
       return num_value_.bool_value_;

@@ -1910,7 +1910,7 @@ yyreduce:
 
   case 43: /* type: DATE_T  */
 #line 345 "yacc_sql.y"
-              { (yyval.number)=DATE_STR; }
+              { (yyval.number)=DATES; }
 #line 1915 "yacc_sql.cpp"
     break;
 
